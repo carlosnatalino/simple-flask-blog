@@ -20,3 +20,7 @@ Then, you can run the project:
 ```python run.app```
 
 There is one user included in the database in file `flaskblog/site.db` with username `default@test.com` and password `testing`.
+
+To-do list:
+- add comments
+- add count to visitors

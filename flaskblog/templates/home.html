@@ -9,7 +9,13 @@
               <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
             </div>
             <h2><a class="article-title" href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h2>
+            {% if post.content_type == 'plain' %}
             <p class="article-content">{{ post.content }}</p>
+            {% elif post.content_type == 'html' %}
+            <p class="article-content">{{ post.content | safe }}</p>
+            {% elif post.content_type == 'markdown' %}
+            <p class="article-content">{{ post.content | markdown }}</p>
+            {% endif  %}
           </div>
         </article>
     {% endfor %}
