@@ -12,9 +12,9 @@
             {% if post.content_type == 'plain' %}
             <p class="article-content">{{ post.content }}</p>
             {% elif post.content_type == 'html' %}
-            <p class="article-content">{{ post.content | safe }}</p>
+            <p class="article-content">{{ post.content | safe | striptags }}</p>
             {% elif post.content_type == 'markdown' %}
-            <p class="article-content">{{ post.content | markdown }}</p>
+            <p class="article-content">{{ post.content | markdown | striptags }}</p>
             {% endif  %}
           </div>
         </article>
