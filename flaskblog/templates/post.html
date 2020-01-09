@@ -14,7 +14,13 @@
         {% endif %}
       </div>
       <h2 class="article-title">{{ post.title }}</h2>
+      {% if post.content_type == 'plain' %}
       <p class="article-content">{{ post.content }}</p>
+      {% elif post.content_type == 'html' %}
+      <p class="article-content">{{ post.content | safe }}</p>
+      {% elif post.content_type == 'markdown' %}
+      <p class="article-content">{{ post.content | markdown }}</p>
+      {% endif  %}
     </div>
   </article>
   <!-- Modal -->
