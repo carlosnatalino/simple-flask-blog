@@ -3,8 +3,8 @@ import secrets
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
 from flaskblog import app, db, bcrypt
-from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
-from flaskblog.models import User, Post
+from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, CommentForm
+from flaskblog.models import User, Post, Comment
 from flask_login import login_user, current_user, logout_user, login_required
 
 
@@ -97,7 +97,7 @@ def account():
 def new_post():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(title=form.title.data, content_type=form.content_type.data, content=form.content.data, author=current_user)
+        post = Post(title=form.title.data, content_type=form.content_type.data, content=form.content.data, user=current_user)
         db.session.add(post)
         db.session.commit()
         flash('Your post has been created!', 'success')
@@ -106,10 +106,22 @@ def new_post():
                            form=form, legend='New Post')
 
 
-@app.route("/post/<int:post_id>")
+@app.route("/post/<int:post_id>", methods=['GET', 'POST'])
 def post(post_id):
     post = Post.query.get_or_404(post_id)
-    return render_template('post.html', title=post.title, post=post)
+    form = CommentForm()
+    if form.validate_on_submit():
+        if current_user.is_authenticated: # you can only comment if you're logged in
+            comment = Comment(content=form.content.data, user=current_user, post=post)
+            db.session.add(comment)
+            db.session.commit()
+            flash('Your post has been created!', 'success')
+            return redirect(f'/post/{post.id}')
+        else:
+            flash('You are not logged in. You need to be logged in to be able to comment!', 'danger')
+    # loading comments in the reverse order of insertion
+    comments = Comment.query.filter(Post.id == post.id).order_by(Comment.date_posted.desc()).all()
+    return render_template('post.html', title=post.title, post=post, form=form, comments=comments)
 
 
 @app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])

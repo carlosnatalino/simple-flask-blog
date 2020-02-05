@@ -23,6 +23,59 @@
       {% endif  %}
     </div>
   </article>
+  <div class="content-section">
+    <h4>Comments</h4>
+    {% if current_user.is_authenticated %}
+    <div class="media">
+      <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
+      <div class="media-body">
+        <form method="POST" action="">
+          <div class="article-metadata">
+            <div class="form-group">
+<!--                  {{ form.content.label(class="form-control-label") }}-->
+                  {% if form.content.errors %}
+                      {{ form.content(class="form-control form-control-lg is-invalid", rows="3", placeholder="Leave your comment here") }}
+                      <div class="invalid-feedback">
+                          {% for error in form.content.errors %}
+                              <span>{{ error }}</span>
+                          {% endfor %}
+                      </div>
+                  {% else %}
+                      {{ form.content(class="form-control form-control-lg", rows="3", placeholder="Leave your comment here") }}
+                  {% endif %}
+              </div>
+            {{ form.csrf_token }}
+            {{ form.submit(class="btn btn-outline-info") }}
+          </div>
+        </form>
+      </div>
+    </div>
+    {% else %}
+    <div class="container">
+      <div class="row">
+        <div class="col-12"><p class="text-center"><b>You need to be logged in to be able to comment.</b></p></div>
+      </div>
+    </div>
+    {% endif %}
+    {% for comment in comments %}
+      <div class="media">
+        <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
+        <div class="media-body">
+          <div class="article-metadata">
+            <div class="container">
+              <div class="row">
+                <div class="col-6"><b>{{ comment.user.username }}</b></div>
+                <div class="col-6" style="text-align: right">{{ comment.date_posted.strftime('%Y-%m-%d %H:%M') }}</div>
+              </div>
+              <div class="row">
+                <div class="col-sm"><p class="text-justify">{{ comment.content }}</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
   <!-- Modal -->
   <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">

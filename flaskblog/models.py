@@ -57,3 +57,18 @@ class Post(db.Model):
             'user': self.user_id,
             'username': self.user.username
         }
+
+
+@dataclass
+class Comment(db.Model):
+    id: int
+    content: str
+    user: User
+
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = relationship(User)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    post = relationship(Post)

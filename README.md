@@ -6,6 +6,7 @@ His video series can be whatched on [YouTube](https://www.youtube.com/playlist?l
 
 The code available in this repository was slightly modified to include:
 - Selection of rendering mode of the posts
+- Addition of comments to posts
 
 ## Installation and execution
 
@@ -19,10 +20,9 @@ Then, you should activate the environment:
 
 Then, you can run the project:
 
-```python run.app```
+```python run.py```
 
 There is one user included in the database in file `flaskblog/site.db` with username `default@test.com` and password `testing`.
 
 To-do list:
-- add comments
 - add count to visitors
