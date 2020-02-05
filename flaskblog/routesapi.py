@@ -1,19 +1,20 @@
-from flask import request, jsonify
+from flask import request, jsonify, abort
 from flaskblog import app, db, bcrypt
 from flaskblog.models import User, Post
 
+
 @app.route("/api/", methods=['GET'])
 def api():
-	if request.json:
-		return "{'message': 'This is the API. It can reply in both JSON and XML.'}"
+	if request.is_json:
+		return "{'message': 'This is the API.'}"
 	else:
-		return "This request is" + request.headers['Content-Type']
+		return abort(403)
+
 
 @app.route("/api/posts", methods=['GET'])
 def api_home():
-    if request.is_json:
-    	posts = Post.query.all()
-    	# return jsonify({'posts': [p.serialize for p in posts]})
-    	return jsonify(posts)
-    else:
-    	return 'error'
+	if request.is_json:
+		posts = Post.query.all()
+		return jsonify(posts)
+	else:
+		return abort(403)
