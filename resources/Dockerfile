@@ -25,4 +25,4 @@ RUN conda install --yes -c conda-forge -f requirements.txt
 
 EXPOSE 4000
 
-CMD ["sh","-c","git pull && python run.py"]
+CMD ["sh","-c","git pull && conda install --yes -c conda-forge -f requirements.txt && python run.py"]
