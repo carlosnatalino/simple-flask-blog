@@ -21,8 +21,6 @@ RUN git clone https://github.com/carlosnatalino/simple-flask-blog.git
 
 WORKDIR /simple-flask-blog/
 
-RUN conda install --yes -c conda-forge -f requirements.txt
-
 EXPOSE 4000
 
 CMD ["sh","-c","git pull && conda install --yes -c conda-forge -f requirements.txt && python run.py"]
