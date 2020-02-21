@@ -34,12 +34,11 @@ class Post(db.Model):
     content_type: str
     user: User
 
-
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
-    content_type = db.Column(db.Text, nullable=False)
+    content_type = db.Column(db.String(20), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = relationship(User)
 
@@ -72,3 +71,10 @@ class Comment(db.Model):
     user = relationship(User)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     post = relationship(Post)
+
+
+@dataclass
+class Token(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date_expired = db.Column(db.DateTime, nullable=False)
+    token = db.Column(db.String(60), nullable=False, index=True) # index helps searching
