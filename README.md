@@ -5,8 +5,12 @@ Source code can be downloaded from his [GitHub page](https://github.com/CoreyMSc
 His video series can be whatched on [YouTube](https://www.youtube.com/playlist?list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH).
 
 The code available in this repository was slightly modified to include:
-- Selection of rendering mode of the posts
+- Selection of rendering mode of the posts (HTML, Markdown)
 - Addition of comments to posts
+- Addition of an [API](./flaskblog/routesapi.py) to consume the posts through REST
+- A [Dockerfile](./resources/Dockerfile) that allows you to run this code easily with all the dependencies
+
+![Database model](./resources/db-model.svg)
 
 ## Installation and execution
 
