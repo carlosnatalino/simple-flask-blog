@@ -3,10 +3,10 @@ from flaskblog import db, bcrypt
 from flaskblog.models import User, Post, Comment
 
 try:
-	os.remove('flaskblog/site.db')
-	print('previous DB file removed')
+    os.remove('flaskblog/site.db')
+    print('previous DB file removed')
 except:
-	print('no previous file found')
+    print('no previous file found')
 
 db.create_all()
 
