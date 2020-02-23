@@ -10,11 +10,11 @@
             </div>
             <h2><a class="article-title" href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h2>
             {% if post.content_type == 'plain' %}
-            <p class="article-content">{{ post.content }}</p>
+            <p class="article-content">{{ post.content | safe | striptags | truncate(400) }}</p>
             {% elif post.content_type == 'html' %}
-            <p class="article-content">{{ post.content | safe | striptags }}</p>
+            <p class="article-content">{{ post.content | safe | striptags | truncate(400) }}</p>
             {% elif post.content_type == 'markdown' %}
-            <p class="article-content">{{ post.content | markdown | striptags }}</p>
+            <p class="article-content">{{ post.content | markdown | striptags | truncate(400) }}</p>
             {% endif  %}
           </div>
         </article>
