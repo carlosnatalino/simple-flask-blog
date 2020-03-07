@@ -41,6 +41,8 @@ class Post(db.Model):
     content_type = db.Column(db.String(20), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = relationship(User)
+    # loading comments in the reverse order of date_posted
+    comments = db.relationship('Comment', backref='comm', lazy=True, order_by='desc(Comment.date_posted)')
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"

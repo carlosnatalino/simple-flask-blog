@@ -57,7 +57,7 @@
       </div>
     </div>
     {% endif %}
-    {% for comment in comments %}
+    {% for comment in post.comments %}
       <div class="media">
         <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
         <div class="media-body">

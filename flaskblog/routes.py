@@ -119,9 +119,7 @@ def post(post_id):
             return redirect(f'/post/{post.id}')
         else:
             flash('You are not logged in. You need to be logged in to be able to comment!', 'danger')
-    # loading comments in the reverse order of insertion
-    comments = Comment.query.filter(Post.id == post.id).order_by(Comment.date_posted.desc()).all()
-    return render_template('post.html', title=post.title, post=post, form=form, comments=comments)
+    return render_template('post.html', title=post.title, post=post, form=form)
 
 
 @app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
