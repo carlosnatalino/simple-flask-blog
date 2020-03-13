@@ -31,28 +31,25 @@ def api():
 
 
 @app.route('/api/users', methods=['GET'])
-def get_users():
+def api_get_users():
 	users = User.query.all()
 	return jsonify(users)
 
 
 @app.route('/api/posts', methods=['GET'])
-def get_posts():
+def api_get_posts():
 	posts = Post.query.all()
 	return jsonify(posts)
 
 
 @app.route('/api/post/<int:post_id>', methods=['GET'])
-def get_post(post_id):
-	post = db.session.query(Post).get(post_id)
-	if post:
-		return jsonify(post), 200
-	else:
-		return abort(404) # 404 is not found
+def api_get_post(post_id):
+	post = Post.query.get_or_404(post_id)
+	return jsonify(post)
 
 
 @app.route('/api/posts', methods=['POST'])
-def create_post():
+def api_create_post():
 	data = request.json
 	if 'title' in data and 'content_type' in data and 'content' in data and 'user' in data:
 		post = Post(title=data['title'],
@@ -70,23 +67,58 @@ def create_post():
 		return abort(400) # 400 is bad request
 
 
+# method PUT replaces the entire object
 @app.route('/api/post/<int:post_id>', methods=['PUT'])
-def replace_post(post_id):
-	post = db.session.query(Post).get(post_id)
-	if post:
-		data = request.json
-		if 'title' in data and 'content_type' in data and 'content' in data and 'user' in data:
-			post.title = data['title']
-			post.content_type = data['content_type']
-			post.content = data['content']
-			post.user_id = data['user']
-			try:
-				db.session.commit()
-				return jsonify(post), 200
-			except:
-				db.sesion.rollback()
-				abort(400)
-		else:
-			return abort(400) # bad request
+def api_update_post(post_id):
+	post = Post.query.get_or_404(post_id)
+	data = request.json
+	if 'title' in data and 'content_type' in data and 'content' in data and 'user' in data:
+		post.title = data['title']
+		post.content_type = data['content_type']
+		post.content = data['content']
+		post.user_id = data['user']
+		try:
+			db.session.commit()
+			return jsonify(post), 200
+		except:
+			db.sesion.rollback()
+			abort(400)
 	else:
-		return abort(404)  # 404 is not found
+		return abort(400) # bad request
+
+
+@app.route('/api/post/<int:post_id>', methods=['PATCH'])
+def api_replace_post(post_id):
+	post = Post.query.get_or_404(post_id)
+	data = request.json
+	# you should have at least one of the columns to be able to perform an update
+	if 'title' in data or 'content_type' in data or 'content' in data or 'user' in data:
+		if 'title' in data:
+			post.title = data['title']
+		if 'content_type' in data:
+			post.content_type = data['content_type']
+		if 'content' in data:
+			post.content = data['content']
+		if 'user' in data:
+			post.user_id = data['user']
+		try:
+			db.session.commit()
+			return jsonify(post), 200
+		except:
+			db.sesion.rollback()
+			abort(400)
+	else:
+		return abort(400) # bad request
+
+
+@app.route('/api/post/<int:post_id>', methods=['DELETE'])
+def api_delete_post(post_id):
+	post = db.session.query(Post).get(post_id)
+	db.session.delete(post)
+	try:
+		db.session.commit()
+		return jsonify({'message': f'Post {post_id} deleted'}), 200
+	except:
+		db.session.rollback()
+		abort(400)
+

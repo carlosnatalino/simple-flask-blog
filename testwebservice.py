@@ -13,7 +13,8 @@ fail = False # keeps track if any of the tests had failed
 reply = requests.get(f'http://{host}:{port}/api/token/public')
 if reply.status_code == 200:
     print('request successful')
-    token = reply.text
+    auth = reply.json()
+    token = auth['token']
     print('My authentication token is:', token)
 else:
     print('request was not successful')
@@ -35,6 +36,7 @@ elif reply.status_code == 403:
     fail = True
 
 # step 3: getting a list of posts
+print('\n\nGetting a list of posts')
 req_headers = {'Content-Type': 'application/json',
                'Authorization': f'Bearer {token}'
               }
@@ -62,6 +64,7 @@ elif reply.status_code == 403:
     fail = True
 
 # step 4: inserting a new post
+print('\n\nInserting a post')
 req_headers = {'Content-Type': 'application/json',
                'Authorization': f'Bearer {token}'
               }
@@ -77,6 +80,7 @@ if reply.status_code == 201:
     print('Created with success')
     post_received = reply.json()
     print('Post created:')
+    post_id = post_received['id']
     print('\tid:', post_received['id'])
     print('\ttitle:', post_received['title'])
 elif reply.status_code == 403:
@@ -88,11 +92,12 @@ else:
 
 
 # step 5: getting a specific post
+print('\n\nGetting a post')
 req_headers = {'Content-Type': 'application/json',
                'Authorization': f'Bearer {token}'
               }
 
-reply = requests.get(f'http://{host}:{port}/api/post/1', headers=req_headers)
+reply = requests.get(f'http://{host}:{port}/api/post/{post_id}', headers=req_headers)
 
 if reply.status_code == 200:
     print('Post found:')
@@ -106,6 +111,7 @@ elif reply.status_code == 403:
     fail = True
 
 # step 6: replacing a post
+print('\n\nReplacing a post')
 req_headers = {'Content-Type': 'application/json',
                'Authorization': f'Bearer {token}'
               }
@@ -115,7 +121,7 @@ post = {'title': 'Define here the title of the student llllll',
        'content': 'Define here the content you want in the post',
        'user': 1}
 
-reply = requests.put(f'http://{host}:{port}/api/post/1', headers=req_headers, data=json.dumps(post))
+reply = requests.put(f'http://{host}:{port}/api/post/{post_id}', headers=req_headers, data=json.dumps(post))
 
 if reply.status_code == 200:
     print('Replaced with success')
@@ -132,6 +138,7 @@ else:
     fail = True
 
 # step 7: editing a post
+print('\n\nEditing a post')
 req_headers = {'Content-Type': 'application/json',
                'Authorization': f'Bearer {token}'
               }
@@ -142,7 +149,7 @@ post = {'title': 'Define here the title of the student llllll -- replaced',
 #        'user': 1
        }
 
-reply = requests.patch(f'http://{host}:{port}/api/post/1', headers=req_headers, data=json.dumps(post))
+# reply = requests.patch(f'http://{host}:{port}/api/post/{post_id}', headers=req_headers, data=json.dumps(post))
 
 if reply.status_code == 200:
     print('Updated with success')
@@ -159,11 +166,12 @@ else:
     fail = True
 
 # step 8: deleting a post
+print('\n\nDeleting a post')
 req_headers = {'Content-Type': 'application/json',
                'Authorization': f'Bearer {token}'
               }
 
-reply = requests.delete(f'http://{host}:{port}/api/post/1', headers=req_headers)
+reply = requests.delete(f'http://{host}:{port}/api/post/{post_id}', headers=req_headers)
 
 if reply.status_code == 200:
     print('Post deleted:')
@@ -182,6 +190,6 @@ else:
 
 
 if not fail:
-    print('THE TESTS WERE SUCCESSFUL')
+    print('\n\nTHE TESTS WERE SUCCESSFUL')
 else:
-    print('THE TESTS WERE NOT SUCCESSFUL')
+    print('\n\nTHE TESTS WERE NOT SUCCESSFUL')
