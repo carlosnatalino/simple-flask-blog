@@ -17,7 +17,7 @@ if reply.status_code == 200:
     token = auth['token']
     print('My authentication token is:', token)
 else:
-    print('request was not successful')
+    print('token request was not successful')
     fail = True
 
 # step 2: getting information about the web service
@@ -60,7 +60,10 @@ if reply.status_code == 200:
             else:
                 print('\t', key.ljust(15), ':', value)
 elif reply.status_code == 403:
-    print('Your credentials have expired! Get new ones!')
+    print('GET LIST: Your credentials have expired! Get new ones!')
+    fail = True
+else:
+    print('GET LIST: There was an error:', reply.status_code)
     fail = True
 
 # step 4: inserting a new post
@@ -84,10 +87,10 @@ if reply.status_code == 201:
     print('\tid:', post_received['id'])
     print('\ttitle:', post_received['title'])
 elif reply.status_code == 403:
-    print('Your credentials have expired! Get new ones!')
+    print('INSERT: Your credentials have expired! Get new ones!')
     fail = True
 else:
-    print('There was an error:', reply.status_code)
+    print('INSERT: There was an error:', reply.status_code)
     fail = True
 
 
@@ -104,10 +107,13 @@ if reply.status_code == 200:
     for key, value in reply.json().items():
         print('\t', key, ':', value)
 elif reply.status_code == 404:
-    print('Post not found! Try another id!')
+    print('FIND POST: Post not found! Try another id!')
     fail = True
 elif reply.status_code == 403:
-    print('Your credentials have expired! Get new ones!')
+    print('FIND POST: Your credentials have expired! Get new ones!')
+    fail = True
+else:
+    print('FIND POST: There was an error:', reply.status_code)
     fail = True
 
 # step 6: replacing a post
@@ -130,10 +136,10 @@ if reply.status_code == 200:
     print('\tid:', post_received['id'])
     print('\ttitle:', post_received['title'])
 elif reply.status_code == 403:
-    print('Your credentials have expired! Get new ones!')
+    print('REPLACE: Your credentials have expired! Get new ones!')
     fail = True
 else:
-    print('There was an error:', reply.status_code)
+    print('REPLACE: There was an error:', reply.status_code)
     print(reply.text)
     fail = True
 
@@ -158,10 +164,10 @@ if reply.status_code == 200:
     print('\tid:', post_received['id'])
     print('\ttitle:', post_received['title'])
 elif reply.status_code == 403:
-    print('Your credentials have expired! Get new ones!')
+    print('UPDATE: Your credentials have expired! Get new ones!')
     fail = True
 else:
-    print('There was an error:', reply.status_code)
+    print('UPDATE: There was an error:', reply.status_code)
     print(reply.text)
     fail = True
 
@@ -178,13 +184,13 @@ if reply.status_code == 200:
     for key, value in reply.json().items():
         print('\t', key, ':', value)
 elif reply.status_code == 404:
-    print('Post not found! Try another id!')
+    print('DELETE: Post not found! Try another id!')
     fail = True
 elif reply.status_code == 403:
-    print('Your credentials have expired! Get new ones!')
+    print('DELETE: Your credentials have expired! Get new ones!')
     fail = True
 else:
-    print('Unknown error:', reply.status_code)
+    print('DELETE: Unknown error:', reply.status_code)
     fail = True
     print(reply.text)
 

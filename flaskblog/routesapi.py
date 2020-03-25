@@ -113,7 +113,7 @@ def api_replace_post(post_id):
 
 @app.route('/api/post/<int:post_id>', methods=['DELETE'])
 def api_delete_post(post_id):
-	post = db.session.query(Post).get(post_id)
+	post = Post.query.get_or_404(post_id)
 	db.session.delete(post)
 	try:
 		db.session.commit()

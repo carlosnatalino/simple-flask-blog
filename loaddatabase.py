@@ -62,5 +62,10 @@ Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ut purus elit, vestibu
 
 db.session.add(comment2)
 
-db.session.commit()
-print('finalized')
+try:
+    db.session.commit()
+    print('\nFinalized - database created successfully!')
+except Exception as e:
+    print('The operations were not successsful. Error:')
+    print(e)
+    db.session.rollback()

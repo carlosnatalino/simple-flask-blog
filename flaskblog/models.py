@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from flaskblog import db, login_manager
 from flask_login import UserMixin
-from sqlalchemy.orm import relationship
 
 
 @login_manager.user_loader
@@ -40,9 +39,10 @@ class Post(db.Model):
     content = db.Column(db.Text, nullable=False)
     content_type = db.Column(db.String(20), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = relationship(User)
+    user = db.relationship(User)
     # loading comments in the reverse order of date_posted
-    comments = db.relationship('Comment', backref='comm', lazy=True, order_by='desc(Comment.date_posted)')
+    comments = db.relationship('Comment', backref='comm', lazy=True, order_by='desc(Comment.date_posted)',
+                               cascade="all, delete, delete-orphan") # removes comments related to a post when a post is deleted
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
@@ -70,9 +70,9 @@ class Comment(db.Model):
     content = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = relationship(User)
+    user = db.relationship(User)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    post = relationship(Post)
+    post = db.relationship(Post)
 
 
 @dataclass
