@@ -7,15 +7,19 @@ from sqlalchemy import event
 import datetime
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245' # change and create your own key
+app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'  # change and create your own key
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 
 # see more at: https://flask.palletsprojects.com/en/1.1.x/config/#SEND_FILE_MAX_AGE_DEFAULT
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 # option to be used during the development phase, prevents caching
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # option to be used during the development phase, prevents caching
 
-app.config['SQLALCHEMY_ECHO'] = True # option for debugging -- should be set to False for production
+app.config['SQLALCHEMY_ECHO'] = True  # option for debugging -- should be set to False for production
+
+# this line is to be used if you are considering uploading large files
+# app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 
+# this function activates stricter handling foreign keys
 def _fk_pragma_on_connect(dbapi_con, con_record):
     dbapi_con.execute('pragma foreign_keys=ON')
 
@@ -24,6 +28,7 @@ db = SQLAlchemy(app)
 event.listen(db.engine, 'connect', _fk_pragma_on_connect)
 
 
+# this function makes the web service api to be accessible only for the requests with valid tokens
 @app.before_request
 def before():
     if request.path.startswith('/api') \
@@ -44,7 +49,7 @@ def before():
     # limiting the addresses
     if not request.remote_addr.startswith('127.0.0') and not request.remote_addr.startswith('129.16.'):
         print('DENIED:', request.remote_addr, request.headers)
-        abort(403) # forbidden
+        abort(403)  # forbidden
 
 
 # option to be used during the development phase, prevents caching
@@ -71,4 +76,4 @@ login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
 from flaskblog import routes
-from flaskblog import routesapi
+from flaskblog import routesapi  # option that loads the routesapi file containing the web service implementation
