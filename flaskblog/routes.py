@@ -109,8 +109,11 @@ def account():
 def new_post():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(title=form.title.data, content_type=form.content_type.data, content=form.content.data, user=current_user)
-        db.session.add(post)
+        created_post = Post(title=form.title.data,
+                            content_type=form.content_type.data,
+                            content=form.content.data,
+                            author=current_user)
+        db.session.add(created_post)
         db.session.commit()
         flash('Your post has been created!', 'success')
         return redirect(url_for('home'))
@@ -120,38 +123,40 @@ def new_post():
 
 @app.route("/post/<int:post_id>", methods=['GET', 'POST'])
 def post(post_id):
-    post = Post.query.get_or_404(post_id)
+    current_post = Post.query.get_or_404(post_id)
     form = CommentForm()
     if form.validate_on_submit():
-        if current_user.is_authenticated: # you can only comment if you're logged in
-            comment = Comment(content=form.content.data, user=current_user, post=post)
-            db.session.add(comment)
+        if current_user.is_authenticated:  # you can only comment if you're logged in
+            new_comment = Comment(content=form.content.data,
+                                  author=current_user,
+                                  post=current_post)
+            db.session.add(new_comment)
             db.session.commit()
-            flash('Your post has been created!', 'success')
-            return redirect(f'/post/{post.id}')
+            flash('Your comment has been created!', 'success')
+            return redirect(f'/post/{current_post.id}')
         else:
             flash('You are not logged in. You need to be logged in to be able to comment!', 'danger')
-    return render_template('post.html', title=post.title, post=post, form=form)
+    return render_template('post.html', post=current_post, form=form)
 
 
 @app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
 @login_required
 def update_post(post_id):
-    post = Post.query.get_or_404(post_id)
-    if post.author != current_user:
-        abort(403)
+    post_to_update = Post.query.get_or_404(post_id)
+    if post_to_update.author != current_user:
+        abort(403)  # only the owner of the post can edit it!
     form = PostForm()
     if form.validate_on_submit():
-        post.title = form.title.data
-        post.content = form.content.data
-        post.content_type = form.content_type.data
+        post_to_update.title = form.title.data
+        post_to_update.content = form.content.data
+        post_to_update.content_type = form.content_type.data
         db.session.commit()
         flash('Your post has been updated!', 'success')
-        return redirect(url_for('post', post_id=post.id))
+        return redirect(url_for('post', post_id=post_to_update.id))
     elif request.method == 'GET':
-        form.title.data = post.title
-        form.content.data = post.content
-        form.content_type.data = post.content_type
+        form.title.data = post_to_update.title
+        form.content.data = post_to_update.content
+        form.content_type.data = post_to_update.content_type
     return render_template('create_post.html', title='Update Post',
                            form=form, legend='Update Post')
 
@@ -159,10 +164,17 @@ def update_post(post_id):
 @app.route("/post/<int:post_id>/delete", methods=['POST'])
 @login_required
 def delete_post(post_id):
-    post = Post.query.get_or_404(post_id)
-    if post.author != current_user:
-        abort(403)
-    db.session.delete(post)
+    post_to_delete = Post.query.get_or_404(post_id)
+    if post_to_delete.author != current_user:
+        abort(403)  # only the author can delete their posts
+    # first we need to delete all the comments
+    # this can be also configured as "cascade delete all"
+    # so that all comments are deleted automatically
+    # I personally prefer explicitly deleting the child rows
+    # see models.py file, class Comment
+    for comment in post_to_delete.comments:
+        db.session.delete(comment)
+    db.session.delete(post_to_delete)
     db.session.commit()
     flash('Your post has been deleted!', 'success')
     return redirect(url_for('home'))

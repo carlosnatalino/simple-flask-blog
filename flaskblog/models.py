@@ -1,3 +1,7 @@
+"""
+This file contains the declarations of the models.
+"""
+
 from dataclasses import dataclass
 from datetime import datetime
 from flaskblog import db, login_manager
@@ -9,7 +13,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-@dataclass
+@dataclass  # dataclass is used to allow for converting objects to JSON in the webservice
 class User(db.Model, UserMixin):
     id: int
     username: str
@@ -20,10 +24,10 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(60), nullable=False)
 
     def __repr__(self):
-        return f"User('{self.username}', '{self.email}', '{self.image_file}')"
+        return f"<User(id='{self.id}', username='{self.username}', email='{self.email}', image_file='{self.image_file}')>"
 
 
-@dataclass  # using dataclass you don't need to have the serialize function
+@dataclass  # using dataclass you don't need to have the serialize function, see lec and lab 10
 class Post(db.Model):
     # but you need to identify the types of the fields
     id: int
@@ -37,11 +41,12 @@ class Post(db.Model):
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
     content_type = db.Column(db.String(20), nullable=False)
+
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     author = db.relationship(User, backref=db.backref('posts', lazy=True))
 
     def __repr__(self):
-        return f"Post('{self.title}', '{self.date_posted}')"
+        return f"<Post(id='{self.id}', title='{self.title}', date_posted='{self.date_posted}')>"
 
     # but with the serialize() allows you to get information from relationships
     @property
@@ -60,21 +65,33 @@ class Post(db.Model):
 class Comment(db.Model):
     id: int
     content: str
-    user: User
+    author: User
 
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, backref=db.backref('comments', lazy=True))
+    author = db.relationship(User, backref=db.backref('comments', lazy=True))
+
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    post = db.relationship(Post, backref=db.backref('comments', lazy=True), order_by='Comment.date_posted.desc()')
+    post = db.relationship(Post, backref=db.backref('comments',
+                                                    order_by='Comment.date_posted.desc()',
+                                                    lazy=True,
+                                                    # the following line enables deleting automatically
+                                                    # the comments of a post when deleting the post
+                                                    # uncomment to activate it
+                                                    # cascade="all, delete-orphan"
+                                                    ))
+
+    def __repr__(self):
+        return f"<Comment(id='{self.id}', post='{self.post_id}', user='{self.user_id}', date_posted='{self.date_posted}')>"
 
 
 @dataclass
 class Token(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_expired = db.Column(db.DateTime, nullable=False)
-    token = db.Column(db.String(60), nullable=False, index=True)  # index helps speeding up the searching
+    token = db.Column(db.String(60), nullable=False, index=True, unique=True)  # index helps speeding up the searching
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, backref=db.backref('tokens', lazy=True))

@@ -8,7 +8,7 @@ The code available in this repository was slightly modified to include:
 - Selection of rendering mode of the posts (HTML, Markdown)
 - Addition of comments to posts
 - Addition of an [API](./flaskblog/routesapi.py) to consume the posts through REST
-- A webservice testing [routine](./testwebservice.py)
+- A webservice testing [routine](test/webservice_test.py)
 - A [Dockerfile](./resources/Dockerfile) that allows you to run this code easily with all the dependencies
 
 ![Database model](./resources/db-model.svg)

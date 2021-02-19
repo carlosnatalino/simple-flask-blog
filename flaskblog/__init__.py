@@ -9,6 +9,7 @@ import datetime
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'  # change and create your own key
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # see more at: https://flask.palletsprojects.com/en/1.1.x/config/#SEND_FILE_MAX_AGE_DEFAULT
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # option to be used during the development phase, prevents caching
@@ -20,8 +21,8 @@ app.config['SQLALCHEMY_ECHO'] = True  # option for debugging -- should be set to
 
 
 # this function activates stricter handling foreign keys
-def _fk_pragma_on_connect(dbapi_con, con_record):
-    dbapi_con.execute('pragma foreign_keys=ON')
+def _fk_pragma_on_connect(db_api_con, con_record):
+    db_api_con.execute('pragma foreign_keys=ON')
 
 
 db = SQLAlchemy(app)
@@ -37,7 +38,7 @@ def before():
         if request.is_json and 'Authorization' in request.headers: # only JSON requests are allowed
             from flaskblog.models import Token
             token_string = request.headers['Authorization'].split(' ')[1]
-            token = db.session.query(Token).filter_by(token=token_string).all()
+            token = Token.query.filter_by(token=token_string).all()
             now = datetime.datetime.now()
             if len(token) == 0:
                 abort(403)
