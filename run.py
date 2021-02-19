@@ -9,9 +9,8 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--port', default=5000, type=int)
     parser.add_argument('--host', default='localhost')
     args = parser.parse_args()
-    print(args)
 
-    if args.reset:  # reset db
+    if args.reset:  # reset db before running the application
         reload_database()
 
     app.run(debug=args.debug, port=args.port, host=args.host)
