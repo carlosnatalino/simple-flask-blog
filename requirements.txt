@@ -3,6 +3,7 @@ flask-sqlalchemy
 flask-bcrypt
 flask-login
 flask-wtf
+flask-markdown
 Pillow
 requests
 pytest

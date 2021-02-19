@@ -30,7 +30,7 @@ post1 = Post(title='Test post default', content_type='markdown', content="""# Th
 Like this
 
 1. And this
-""", user=default_user1)
+""", author=default_user1)
 
 db.session.add(post1)
 
@@ -52,7 +52,7 @@ post2 = Post(title='Test post default second', content_type='plain', content="""
 Like this
 
 1. And this
-""", user=default_user2)
+""", author=default_user2)
 
 db.session.add(post2)
 
@@ -66,6 +66,6 @@ try:
     db.session.commit()
     print('\nFinalized - database created successfully!')
 except Exception as e:
-    print('The operations were not successsful. Error:')
+    print('The operations were not successful. Error:')
     print(e)
     db.session.rollback()

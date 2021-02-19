@@ -30,7 +30,7 @@ class Post(db.Model):
     title: str
     content: str
     content_type: str
-    user: User
+    author: User
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
@@ -38,11 +38,7 @@ class Post(db.Model):
     content = db.Column(db.Text, nullable=False)
     content_type = db.Column(db.String(20), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, backref=db.backref('posts', lazy=True))
-    # loading comments in the reverse order of date_posted
-    comments = db.relationship('Comment', backref='comm', lazy=True, order_by='desc(Comment.date_posted)',
-                               cascade="all, delete, delete-orphan")
-    # cascade: removes comments related to a post when a post is deleted
+    author = db.relationship(User, backref=db.backref('posts', lazy=True))
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
@@ -70,9 +66,9 @@ class Comment(db.Model):
     content = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, backref=db.backref('comments', lazy=True), order_by='Comment.date_posted.desc()')
+    user = db.relationship(User, backref=db.backref('comments', lazy=True))
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    post = db.relationship(Post, backref=db.backref('comments', lazy=True))
+    post = db.relationship(Post, backref=db.backref('comments', lazy=True), order_by='Comment.date_posted.desc()')
 
 
 @dataclass
