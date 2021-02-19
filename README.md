@@ -8,7 +8,8 @@ The code available in this repository was slightly modified to include:
 - Selection of rendering mode of the posts (HTML, Markdown)
 - Addition of comments to posts
 - Addition of an [API](./flaskblog/routesapi.py) to consume the posts through REST
-- A webservice testing [routine](test/webservice_test.py)
+- Integration test [routines](test/integration_test.py) (requires selenium)
+- WebService test [routines](test/webservice_test.py)
 - A [Dockerfile](./resources/Dockerfile) that allows you to run this code easily with all the dependencies
 
 ![Database model](./resources/db-model.svg)
@@ -17,17 +18,31 @@ The code available in this repository was slightly modified to include:
 
 Once you have Anaconda installed, in your terminal, run:
 
-```conda create --yes --name simpleblog -c conda-forge python=3.7 flask flask-sqlalchemy flask-bcrypt flask-login flask-wtf flask-markdown Pillow```
+```conda create --yes --name simpleblog python=3.8```
 
 Then, you should activate the environment:
 
 ```conda activate simpleblog```
 
+Then, install the dependencies:
+
+```pip install -r requirements.txt```
+
+Then, create the database and insert a few examples:
+
+```python load_database.py```
+
 Then, you can run the project:
 
 ```python run.py```
 
-There is one user included in the database in file `flaskblog/site.db` with username `default@test.com` and password `testing`.
+Optionally, you can run the tests.
+ 
+First, make sure that the system is running and that selenium is correctly installed in your Chrome browser.
+ 
+Then, open a new terminal and executing:
+
+```pytest```
 
 To-do list:
 - add count to visitors

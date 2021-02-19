@@ -32,7 +32,9 @@ def register():
         db.session.commit()
         flash('Your account has been created! You are now able to log in', 'success')
         return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
+    return render_template('register.html',
+                           title='Register',
+                           form=form)
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -48,7 +50,9 @@ def login():
             return redirect(next_page) if next_page else redirect(url_for('home'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
-    return render_template('login.html', title='Login', form=form)
+    return render_template('login.html',
+                           title='Login',
+                           form=form)
 
 
 @app.route("/logout")
@@ -100,8 +104,10 @@ def account():
         form.username.data = current_user.username
         form.email.data = current_user.email
     image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
-    return render_template('account.html', title='Account',
-                           image_file=image_file, form=form)
+    return render_template('account.html',
+                           title='Account',
+                           image_file=image_file,
+                           form=form)
 
 
 @app.route("/post/new", methods=['GET', 'POST'])
@@ -117,8 +123,10 @@ def new_post():
         db.session.commit()
         flash('Your post has been created!', 'success')
         return redirect(url_for('home'))
-    return render_template('create_post.html', title='New Post',
-                           form=form, legend='New Post')
+    return render_template('create_post.html',
+                           title='New Post',
+                           form=form,
+                           legend='New Post')
 
 
 @app.route("/post/<int:post_id>", methods=['GET', 'POST'])
@@ -136,7 +144,10 @@ def post(post_id):
             return redirect(f'/post/{current_post.id}')
         else:
             flash('You are not logged in. You need to be logged in to be able to comment!', 'danger')
-    return render_template('post.html', post=current_post, form=form)
+    return render_template('post.html',
+                           title=current_post.title,
+                           post=current_post,
+                           form=form)
 
 
 @app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
@@ -157,8 +168,10 @@ def update_post(post_id):
         form.title.data = post_to_update.title
         form.content.data = post_to_update.content
         form.content_type.data = post_to_update.content_type
-    return render_template('create_post.html', title='Update Post',
-                           form=form, legend='Update Post')
+    return render_template('create_post.html',
+                           title='Update Post',
+                           form=form,
+                           legend='Update Post')
 
 
 @app.route("/post/<int:post_id>/delete", methods=['POST'])
