@@ -79,6 +79,6 @@ class Comment(db.Model):
 class Token(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_expired = db.Column(db.DateTime, nullable=False)
-    token = db.Column(db.String(60), nullable=False, index=True) # index helps searching
+    token = db.Column(db.String(60), nullable=False, index=True)  # index helps speeding up the searching
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, backref=db.backref('tokens', lazy=True))

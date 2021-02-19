@@ -1,5 +1,5 @@
 # file that implements the web service part of the project.
-# for more information about REST methods and their resposabilities,
+# for more information about REST methods and their responsibilities,
 # visit: https://www.restapitutorial.com/lessons/httpmethods.html
 # or https://www.w3schools.in/restful-web-services/rest-methods/
 from flask import request, jsonify, abort
@@ -11,16 +11,30 @@ import datetime
 # method used to create a token that can be used for some time defined by the delta
 @app.route('/api/token/public', methods=['GET'])
 def token():
-	expired = datetime.datetime.now() + datetime.timedelta(minutes=60)
-	token_string = bcrypt.generate_password_hash(str(expired)).decode('utf-8')
-	new_token = Token(token=token_string, date_expired=expired)
-	db.session.add(new_token)
-	try:
-		db.session.commit()
-		return jsonify({'token': token_string, 'expire': expired.strftime('%Y-%m-%d %H:%M:%S')})
-	except:
-		db.session.rollback()
-		return abort(400)
+	data = request.json  # gets the JSON sent by the user
+
+	if 'email' not in data or 'password' not in data:
+		# in this case, we do not have enough information to perform a login
+		return abort(400)  # HTTP code 400: bad request
+
+	user = User.query.filter_by(email=data['email']).first()
+	if user and bcrypt.check_password_hash(user.password, data['password']):
+		# if login info is correct, create a new token
+		expired = datetime.datetime.now() + datetime.timedelta(minutes=60)
+		token_string = bcrypt.generate_password_hash(str(expired)).decode('utf-8')
+		new_token = Token(token=token_string, date_expired=expired, user_id=user.id)
+		db.session.add(new_token)
+		try:
+			db.session.commit()
+			return jsonify({'token': token_string,
+							'message': 'Login successful!',
+							'expire': expired.strftime('%Y-%m-%d %H:%M:%S')})
+		except:
+			db.session.rollback()
+			return abort(400)  # HTTP code 400: bad request
+	else:
+		info = dict(message='Login Unsuccessful. Please check email and password.')
+		return jsonify(info),
 
 
 # method used to inform the user of the webservice regarding its capabilities
@@ -30,7 +44,6 @@ def api():
 	info['message'] = 'This is the API to consume blog posts'
 	info['services'] = []
 	info['services'].append({'url': '/api/posts', 'method': 'GET', 'description': 'Gets a list of posts'})
-	print(info)
 	return jsonify(info)
 
 
@@ -52,7 +65,7 @@ def api_get_post(post_id):
 # note that the JSON received should have the key 'user' containing the user_id
 @app.route('/api/posts', methods=['POST'])
 def api_create_post():
-	data = request.json # gets the JSON sent by the user
+	data = request.json  # gets the JSON sent by the user
 
 	# the conditional should make sure that all the non-null attributes are present in the
 	# data sent by the call
@@ -64,19 +77,19 @@ def api_create_post():
 		db.session.add(post)
 		try:
 			db.session.commit()
-			return jsonify(post), 201 # status 201 means "CREATED"
+			return jsonify(post), 201  # status 201 means "CREATED"
 		except:
 			# to have more detailed exception messages, check the content of lecture 7
 			db.session.rollback()
 			abort(400)
 	else:
-		return abort(400) # 400 is bad request
+		return abort(400)  # HTTP code 400: bad request
 
 
 # method PUT replaces the entire object, i.e., changes all the attributes
 @app.route('/api/post/<int:post_id>', methods=['PUT'])
 def api_update_post(post_id):
-	post = Post.query.get_or_404(post_id) # makes sure that the post_id exists
+	post = Post.query.get_or_404(post_id)  # makes sure that the post_id exists
 	data = request.json
 
 	# the conditional should make sure that all the non-null attributes are present in the
@@ -94,7 +107,7 @@ def api_update_post(post_id):
 			db.sesion.rollback()
 			abort(400)
 	else:
-		return abort(400) # bad request
+		return abort(400)  # HTTP code 400: bad request
 
 
 # method PATCH changes only a few (not always all) the attributes of the object
@@ -123,7 +136,7 @@ def api_replace_post(post_id):
 			db.sesion.rollback()
 			abort(400)
 	else:
-		return abort(400) # bad request
+		return abort(400)  # HTTP code 400: bad request
 
 
 @app.route('/api/post/<int:post_id>', methods=['DELETE'])
@@ -136,5 +149,4 @@ def api_delete_post(post_id):
 	except:
 		# to have more detailed exception messages, check the content of lecture 7
 		db.session.rollback()
-		abort(400)
-
+		abort(400)  # HTTP code 400: bad request

@@ -1,36 +1,48 @@
-'''
-Test Script
+"""
+Integration test for the system.
+
+Before starting the test, we setup by checking if the system is online.
+
+The, we perform the following operations:
 1 - Register
 2 - Login
 3 - Create a new post
 4 - Edit a post
 5 - Delete a post
 6 - Logout
-'''
+"""
 
-from flaskblog import app
-from selenium import webdriver
-from multiprocessing import Process
+import sys
 import time
+import requests
+from selenium import webdriver
 
-wait_time = 1
+wait_time = 1  # number of minutes to wait between actions
+host = 'localhost'  # host where the system is running
+port = 5000  # port where the process is running
 
 
 def test_setup():
-    # start flask application at background
-    global server
-    server = Process(target=app.run)
-    server.start()
 
-    # give the server a second to ensure it is up
-    time.sleep(wait_time)
+    # checking if the system is online
+    try:
+        response = requests.get(f'http://{host}:{port}')
+        if response.status_code != 200:
+            print(f'The website returned status code {response.status_code}!', file=sys.stderr)
+            print(f'Check if the site is correctly configured and running!', file=sys.stderr)
+            exit(10)  # stop the execution of the text
+    except Exception as e:
+        print(f'We are having troubles connecting to the system!', file=sys.stderr)
+        print(f'Check if the site is correctly configured and running!', file=sys.stderr)
+        print(f'Error description: {e}')
+        exit(11)
 
     # setup the browser
     global driver
     driver = webdriver.Chrome()
     driver.implicitly_wait(10)
     driver.maximize_window()
-    driver.get("http://localhost:5000")
+    driver.get(f'http://{host}:{port}')
     time.sleep(wait_time)
 
 
@@ -113,8 +125,6 @@ def test_teardown():
         driver.quit()
     except:
         pass
-    server.terminate()
-    server.join()
 
 
 if __name__ == '__main__':

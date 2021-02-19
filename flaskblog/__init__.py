@@ -45,7 +45,7 @@ def before():
         else:
             return abort(403)
 
-    # limiting the addresses
+    # limiting the addresses to only local and Chalmers network
     if not request.remote_addr.startswith('127.0.0') and not request.remote_addr.startswith('129.16.'):
         print('DENIED:', request.remote_addr, request.headers)
         abort(403)  # forbidden

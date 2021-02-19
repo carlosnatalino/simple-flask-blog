@@ -1,5 +1,8 @@
-# This file is meant to test the functionalities of the API built in this software.
-# Official documentation: https://requests.readthedocs.io/en/master/
+"""
+This file is meant to test the functionalities of the API built in this software.
+Official documentation: https://requests.readthedocs.io/en/master/
+"""
+
 import requests
 import json
 
