@@ -49,7 +49,11 @@ def reload_database():
                          password=hashed_password)
     db.session.add(default_user3)
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        print('Error committing the users', file=sys.stderr)
 
     # testing if the users were added correctly
     assert len(User.query.all()) == 3, 'It seems that user failed to be inserted!'
@@ -75,7 +79,11 @@ def reload_database():
                         author=user)
 
             db.session.add(post)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                print('Error committing the posts', file=sys.stderr)
 
             # for each post, creating 2 to 5 comments
             for c in range(random.randint(2, 5)):
@@ -95,7 +103,11 @@ def reload_database():
                 # adding the comment object to the database
                 db.session.add(comment)
 
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                print('Error committing the comments', file=sys.stderr)
             # testing if the comments were inserted correctly
             assert len(Comment.query.filter_by(post_id=post.id).all()) > 0, \
                 f'The comments for post {post.id} were not successful!'
