@@ -58,7 +58,8 @@ class UpdateAccountForm(FlaskForm):
 
 class PostForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
-    content_type = RadioField('Content type', validators=[DataRequired()], choices=[('plain', 'Plain Text'), ('html', 'HTML'), ('markdown', 'Markdown')])
+    content_type = RadioField('Content type', validators=[DataRequired()],
+                              choices=[('plain', 'Plain Text'), ('html', 'HTML'), ('markdown', 'Markdown')])
     content = TextAreaField('Content', validators=[DataRequired()])
     submit = SubmitField('Post')
 

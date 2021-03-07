@@ -1,7 +1,11 @@
 """
 Integration test for the system.
 
-Before starting the test, we setup by checking if the system is online.
+Before starting the test:
+
+1. Run load_database.py
+2. Run run.py
+3. Check if the system is online.
 
 The, we perform the following operations:
 1 - Register
@@ -15,7 +19,6 @@ The, we perform the following operations:
 import sys
 import time
 import random
-import traceback
 import requests
 from lorem_text import lorem
 from selenium import webdriver
@@ -189,7 +192,7 @@ if __name__ == '__main__':
         i = input('Setup ran correctly. Proceed? [Y/n]')
         if i.strip().lower() == 'n':
             exit(12)
-    # test_register()
+    test_register()
 
     if stop:
         i = input('Register ran correctly. Proceed? [Y/n]')
