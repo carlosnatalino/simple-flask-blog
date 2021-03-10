@@ -11,7 +11,12 @@ from flask_login import login_user, current_user, logout_user, login_required
 @app.route("/")
 @app.route("/home")
 def home():
-    posts = Post.query.order_by(Post.date_posted.desc()).all()
+    if 'keyword' in request.args:
+        keyword = request.args['keyword']
+        # search the posts using the keyword
+        posts = Post.query.filter(Post.title.like(f'xyz %{keyword}%')).order_by(Post.date_posted.desc()).all()
+    else:
+        posts = Post.query.order_by(Post.date_posted.desc()).all()
     return render_template('home.html', posts=posts)
 
 
