@@ -14,9 +14,11 @@ def home():
     if 'keyword' in request.args:
         keyword = request.args['keyword']
         # search the posts using the keyword
-        posts = Post.query.filter(Post.title.like(f'xyz %{keyword}%')).order_by(Post.date_posted.desc()).all()
+        posts = Post.query.filter(Post.title.like(f'%{keyword}%')).order_by(Post.date_posted.desc()).all()
+        app.logger.debug(f'searching by `{keyword}` returned {len(posts)} posts')
     else:
         posts = Post.query.order_by(Post.date_posted.desc()).all()
+        app.logger.debug(f'index without searching returned {len(posts)} posts')
     return render_template('home.html', posts=posts)
 
 
@@ -34,9 +36,16 @@ def register():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(username=form.username.data, email=form.email.data, password=hashed_password)
         db.session.add(user)
-        db.session.commit()
-        flash('Your account has been created! You are now able to log in', 'success')
-        return redirect(url_for('login'))
+        try:
+            db.session.commit()
+            app.logger.debug('New user created successfully.')
+            flash('Your account has been created! You are now able to log in.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            app.logger.critical(f'Error while creating the user {user}')
+            app.logger.exception(e)
+            flash('The system encountered a problem while creating your account. Try again later.', 'danger')
     return render_template('register.html',
                            title='Register',
                            form=form)
@@ -67,10 +76,14 @@ def logout():
 
 
 def save_compressed_picture(form_picture):
+    """
+    Function that gets the file contained in the parameter `form_picture`, compresses it to a 125x125 pixels image,
+    and saves it to the `static/profile_pics` folder.
+    """
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
-    picture_path = os.path.join(app.root_path, 'static/profile_pics', picture_fn)
+    picture_path = os.path.join(app.root_path, 'static', 'profile_pics', picture_fn)
 
     output_size = (125, 125)
     i = Image.open(form_picture)
@@ -81,10 +94,14 @@ def save_compressed_picture(form_picture):
 
 
 def save_raw_picture(form_picture):
+    """
+    Function that gets the file contained in the parameter `form_picture`,
+    and saves it to the `static/profile_pics` folder.
+    """
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
-    picture_path = os.path.join(app.root_path, 'static/profile_pics', picture_fn)
+    picture_path = os.path.join(app.root_path, 'static', 'profile_pics', picture_fn)
 
     form_picture.save(picture_path)
 
@@ -102,9 +119,15 @@ def account():
             current_user.image_file = picture_file
         current_user.username = form.username.data
         current_user.email = form.email.data
-        db.session.commit()
-        flash('Your account has been updated!', 'success')
-        return redirect(url_for('account'))
+        try:
+            db.session.commit()
+            flash('Your account has been updated!', 'success')
+            return redirect(url_for('account'))
+        except Exception as e:
+            db.session.rollback()
+            app.logger.critical(f'Error while updating your account. {current_user}')
+            app.logger.exception(e)
+            flash('There was an error while updating your account. Try again later.', 'danger')
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.email.data = current_user.email
@@ -125,9 +148,15 @@ def new_post():
                             content=form.content.data,
                             author=current_user)
         db.session.add(created_post)
-        db.session.commit()
-        flash('Your post has been created!', 'success')
-        return redirect(url_for('home'))
+        try:
+            db.session.commit()
+            flash('Your post has been created!', 'success')
+            return redirect(url_for('home'))
+        except Exception as e:
+            db.session.rollback()
+            app.logger.critical(f'Error while inserting a new post: {created_post}')
+            app.logger.exception(e)
+            flash('There was an error while creating your post. Try again later.', 'danger')
     return render_template('create_post.html',
                            title='New Post',
                            form=form,
@@ -144,9 +173,15 @@ def post(post_id):
                                   author=current_user,
                                   post=current_post)
             db.session.add(new_comment)
-            db.session.commit()
-            flash('Your comment has been created!', 'success')
-            return redirect(f'/post/{current_post.id}')
+            try:
+                db.session.commit()
+                form.content.data = ""
+                flash('Your comment has been created!', 'success')
+            except Exception as e:
+                db.session.rollback()
+                app.logger.critical(f'Error while creating the comment: {new_comment}')
+                app.logger.exception(e)
+                flash('There was an error while creating your comment. Try again later.', 'danger')
         else:
             flash('You are not logged in. You need to be logged in to be able to comment!', 'danger')
     return render_template('post.html',
@@ -166,9 +201,15 @@ def update_post(post_id):
         post_to_update.title = form.title.data
         post_to_update.content = form.content.data
         post_to_update.content_type = form.content_type.data
-        db.session.commit()
-        flash('Your post has been updated!', 'success')
-        return redirect(url_for('post', post_id=post_to_update.id))
+        try:
+            db.session.commit()
+            flash('Your post has been updated!', 'success')
+            return redirect(url_for('post', post_id=post_to_update.id))
+        except Exception as e:
+            db.session.rollback()
+            app.logger.critical(f'Error while updating the post: {post_to_update}')
+            app.logger.exception(e)
+            flash('There was an error while updating your post. Try again later!', 'danger')
     elif request.method == 'GET':
         form.title.data = post_to_update.title
         form.content.data = post_to_update.content
@@ -193,6 +234,12 @@ def delete_post(post_id):
     for comment in post_to_delete.comments:
         db.session.delete(comment)
     db.session.delete(post_to_delete)
-    db.session.commit()
-    flash('Your post has been deleted!', 'success')
-    return redirect(url_for('home'))
+    try:
+        db.session.commit()
+        flash('Your post has been deleted!', 'success')
+        return redirect(url_for('home'))
+    except Exception as e:
+        db.session.rollback()
+        app.logger.critical(f'Error while deleting the post: {post_to_delete}')
+        app.logger.exception(e)
+        flash('There was an error while deleting your post. Try again later!', 'danger')

@@ -13,10 +13,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-@dataclass  # dataclass is used to allow for converting objects to JSON in the webservice
 class User(db.Model, UserMixin):
-    id: int
-    username: str
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -27,15 +24,7 @@ class User(db.Model, UserMixin):
         return f"<User(id='{self.id}', username='{self.username}', email='{self.email}', image_file='{self.image_file}')>"
 
 
-@dataclass  # using dataclass you don't need to have the serialize function, see lec and lab 10
 class Post(db.Model):
-    # but you need to identify the types of the fields
-    id: int
-    title: str
-    content: str
-    content_type: str
-    author: User
-
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -46,27 +35,10 @@ class Post(db.Model):
     author = db.relationship(User, backref=db.backref('posts', lazy=True))
 
     def __repr__(self):
-        return f"<Post(id='{self.id}', title='{self.title}', date_posted='{self.date_posted}')>"
-
-    # but with the serialize() allows you to get information from relationships
-    @property
-    def serialize(self):
-        return {
-            'id': self.id,
-            'title': self.title,
-            'content': self.content,
-            'content_type': self.content_type,
-            'user': self.user_id,
-            'username': self.user.username
-        }
+        return f"<Post(id='{self.id}', user_id='{self.user_id}', title='{self.title}', date_posted='{self.date_posted}')>"
 
 
-@dataclass
 class Comment(db.Model):
-    id: int
-    content: str
-    author: User
-
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -85,10 +57,9 @@ class Comment(db.Model):
                                                     ))
 
     def __repr__(self):
-        return f"<Comment(id='{self.id}', post='{self.post_id}', user='{self.user_id}', date_posted='{self.date_posted}')>"
+        return f"<Comment(id='{self.id}', post_id='{self.post_id}', user_id='{self.user_id}', date_posted='{self.date_posted}')>"
 
 
-@dataclass
 class Token(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_expired = db.Column(db.DateTime, nullable=False)

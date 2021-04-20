@@ -9,6 +9,7 @@ __pycache__/
 .idea
 .pytest_cache
 flaskblog/site.db
+*.log
 
 # Distribution / packaging
 .Python
