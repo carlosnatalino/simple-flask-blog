@@ -7,6 +7,10 @@ from flask_login import LoginManager
 from flaskext.markdown import Markdown
 from sqlalchemy import event
 
+# configuring the logging
+# for more info, check:
+# https://docs.python.org/3.8/howto/logging.html
+# https://docs.python.org/3/library/logging.html
 dictConfig({
     'version': 1,
     'formatters': {'default': {

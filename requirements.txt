@@ -1,3 +1,4 @@
+wtforms
 sqlalchemy
 flask
 flask-sqlalchemy

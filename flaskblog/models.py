@@ -2,7 +2,6 @@
 This file contains the declarations of the models.
 """
 
-from dataclasses import dataclass
 from datetime import datetime
 from flaskblog import db, login_manager
 from flask_login import UserMixin
